@@ -205,6 +205,7 @@ void ReadBytes(char * readBuffer, unsigned int readLength) {
     const int loopCount = (int)(10 * ((float)200/clock));
     unsigned int readCount = 0;
     int i = 0;  // Used only for loop
+    int ftStatus = 0;
     if (!readBuffer || !readLength) {
         return;
     }
@@ -240,8 +241,7 @@ void ReadBytes(char * readBuffer, unsigned int readLength) {
             OutputBuffer[dwNumBytesToSend++] = '\x02';  // SDA High, SCL Low
             OutputBuffer[dwNumBytesToSend++] = '\x13';
         }
-        ftStatus = FT_Write(ftHandle, 
-        OutputBuffer, dwNumBytesToSend, &dwNumBytesToSend);
+        ftStatus = ftdi_write_data(&ftdic, OutputBuffer, dwNumBytesToSend);
         dwNumBytesToSend = 0;
         ++readCount;
     }
@@ -276,8 +276,7 @@ void ReadBytes(char * readBuffer, unsigned int readLength) {
         OutputBuffer[dwNumBytesToSend++] = '\x02'; // SDA High, SCL Low
         OutputBuffer[dwNumBytesToSend++] = '\x13';
     }
-    ftStatus = FT_Write(ftHandle, 
-        OutputBuffer, dwNumBytesToSend, &dwNumBytesToSend);
+    ftStatus = ftdi_write_data(&ftdic, OutputBuffer, dwNumBytesToSend);
         dwNumBytesToSend = 0;
         
     // Read bytes from device receive buffer, first byte is data read, second byte is ACK bit
@@ -285,7 +284,7 @@ void ReadBytes(char * readBuffer, unsigned int readLength) {
     
     if(dwNumBytesRead != readLength) {
 		printf("Error reading i2c\n");
-		return 0xFF;
+		return;
 	}
     
     if(debug) {
@@ -411,7 +410,7 @@ int main(int argc, char *argv[]) {
 				gpio = atoi(argv[a]);
 			else {
 				printf("Unknown option -%c\n", *s);
-				exit;
+				return 1;
 			}
 		}
 		else
