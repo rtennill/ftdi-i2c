@@ -1,12 +1,21 @@
 # Makefile for ftdi i2c driver
 
-ALL: i2csend i2cget
+# use this version unless otherwise specified
+ifeq ($(LIBFTDI), )
+	LIBFTDI=libftdi1
+endif
+
+CFLAGS:=`pkg-config --cflags $(LIBFTDI)`
+LIBS:=`pkg-config --libs $(LIBFTDI)`
+
+.PHONY: clean
+
+all: i2csend i2cget
+clean:
+	rm -f i2csend i2cget
 
 i2csend: i2csend.c
-	gcc `pkg-config --cflags libftdi`  -o i2csend  i2csend.c  `pkg-config --libs libftdi`
+	gcc $(CFLAGS) -o $@ $< $(LIBS)
 
 i2cget: i2cget.c
-	gcc `pkg-config --cflags libftdi`  -o i2cget  i2cget.c  `pkg-config --libs libftdi`
-
-
-
+	gcc $(CFLAGS) -o $@ $< $(LIBS)
